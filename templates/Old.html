@@ -1,0 +1,24 @@
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"
+        integrity="sha384-FHPO3WflXLtHD+y+zqZNBJAf51Z0z6RZY25UP1LuGix2HqR8iVG5TAtulYf6jZsE"
+        crossorigin="anonymous"></script>
+<script>
+    const socket = io();
+
+    socket.on('connect', () => {
+        console.log('✅ Verbunden mit dem Socket.IO-Server');
+    });
+
+    socket.on('NewBoard', (msg) => {
+        console.log('📥 NewBoard empfangen:', msg);
+        const li = document.createElement('li');
+        li.textContent = JSON.stringify(msg);
+        document.getElementById('boards').appendChild(li);
+    });
+
+    socket.on('VariableUpdate', (msg) => {
+        console.log('📥 VariableUpdate empfangen:', msg);
+        const li = document.createElement('li');
+        li.textContent = JSON.stringify(msg);
+        document.getElementById('variables').appendChild(li);
+    });
+</script>

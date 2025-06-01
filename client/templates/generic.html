@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Sensor Dashboard</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/generic.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    </head>
+    <body>
+        <nav class = "nav-sidebar">
+            <h2>Boards</h2>
+            <ul id = "board_list">
+                <!-- Sensoren werden hier dynamisch eingefügt -->
+            </ul>
+        </nav>
+        
+        <main class = "content">
+            <div class = "header-container">
+                <p id = "board_name" > </p>
+            </div>
+            
+            <div class = "dashboard-generic-grid" id = "genericGrid">  
+                <!-- Inhalt wird hier dynamisch eingefügt -->
+            </div>
+        </main>
+    </body>
+</html>

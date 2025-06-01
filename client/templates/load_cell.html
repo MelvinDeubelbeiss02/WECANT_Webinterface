@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Sensor Dashboard</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/load_cell.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/load_cell.js') }}"></script>  
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    </head>
+    <body>
+        <nav class="nav-sidebar">
+            <h2>Boards</h2>
+            <ul id = "board_list">
+                <!-- Sensoren werden hier dynamisch eingefügt -->
+            </ul>
+        </nav>
+
+        <main class="content">
+            <div class ="header-container">
+                <p id = "board_name"> </p>
+            </div>
+
+            <div class="lc-dashboard-grid">
+                <div class = "icon-variable-container">
+                    <img class = "icon-image" src = "{{ url_for('static', filename='images/humidity.png') }}" alt = "Humidity icon" draggable = "false">
+                    <div class = "icon-sensortext">
+                        <p>Humidity</p>
+                        <p>
+                            <span id = "LC_Hum"></span><span> %</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class = "icon-variable-container">
+                    <img class = "icon-image" src = "{{ url_for('static', filename='images/temperature.png') }}" alt = "Temperature icon" draggable = "false">
+                    <div class = "icon-sensortext">
+                        <p>Temperature</p>
+                        <p>
+                            <span id = "LC_Temp"></span><span> °C</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class = "icon-variable-container">
+                    <img class = "icon-image" src = "{{ url_for('static', filename='images/load.png') }}" alt = "Load icon" draggable = "false">
+                    <div class = "icon-sensortext">
+                        <p>Load</p>
+                        <p>
+                            <span id = "LC_Weight"></span><span> g</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class = "icon-variable-container">
+                    <img class = "icon-image" src = "{{ url_for('static', filename='images/ADC.png') }}" alt = "ADC icon" draggable = "false">
+                    <div class = "icon-sensortext">
+                        <p>Raw ADC</p>
+                        <p>
+                            <span id = "LC_RawADC"></span><span> g</span>
+                        </p>
+                    </div>
+                </div>
+
+
+                <div class = "calibration-container">
+                    <p> Calibration</p>
+
+                    <div class = "edit-calibration">
+                        <div class = "calibration-row">
+                            <p>gradient:</p>
+                            <input id = "gradient_value" type = "text" name = "gradient">
+                        </div>
+                        <div class = "calibration-row">
+                            <p>offset:</p>
+                            <input id = "offset_value" type = "text" name = "offset">
+                        </div>
+                    </div>
+                    <p>load(g) = gradient * RawADC + offset</p>
+                    <button id = "calibrate_button">calibrate</button>
+                </div>   
+
+                <div class = "plot-container">
+                    <h3>Plot</h3>
+                    <canvas class = "chart-placeholder" id = "load_cell_chart"></canvas>
+                    <div class = "edits">
+                        <button id = "start_plotting">Start</button>
+                        <button id = "stop_plotting">Stop</button>
+                        <button id = "reset_plotting">Reset</button>
+                    </div>
+                </div>
+
+                <div class = "tare-container">
+                    <button id = "tare_button">Tare</button>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sensor Dashboard</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script src="../js/script.js"></script>
+</head>
+<body>
+  <nav class="sidebar">
+    <h2>Sensoren</h2>
+    <ul id="sensor-list">
+      <!-- Sensoren werden hier dynamisch eingefügt -->
+    </ul>
+  </nav>
+
+  <main class="content">
+    <h1>Suchleiste</h1>
+
+    <div class="dashboard-grid">
+        <div class = "icon-container">
+            <div class="icon-image">
+                <div class="sensortext_aligned">
+                    <img class = "icon_image" src="../assets/images/humidity.png" alt="Humidity icon">
+                </div>
+                <div class="sensortext_aligned">
+                    <p> Humidity</p>
+                    <p>
+                        <span id="humidity_value">42</span><span> %</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class = "icon-container">
+            <div class="icon-image">
+                <div class="sensortext_aligned">
+                    <img class = "icon_image" src="../assets/images/temperature.png" alt="Temperature icon">
+                </div>
+                <div class="sensortext_aligned">
+                    <p> Temperature</p>
+                    <p>
+                        <span>SHT35:   </span><span id="temperature_sht35_value">22</span><span> °C</span>
+                    </p>
+                    <p>
+                        <span>PT1000: </span><span id="temperature__pt1000_value">22</span><span> °C</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class = "icon-container">
+            <div class="icon-image">
+                <div class="sensortext_aligned">
+                    <img class = "icon_image" src="../assets/images/manometer.png" alt="Barometer icon">
+                </div>
+                <div class="sensortext_aligned">
+                    <p>Barometer</p>
+                    <p>
+                        <span id="barometer_value">22</span><span> hPa</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class = "icon-container">
+            <div class="icon-image">
+                <div class="sensortext_aligned">
+                    <img class = "icon_image" src="../assets/images/ph.png" alt="Barometer icon">
+                </div>
+                <div class="sensortext_aligned">
+                    <p>PH </p>
+                    <p>
+                        <span id="ph_value">22</span><span> </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class = "icon-container">
+            <div class="icon-image">
+                <div class="sensortext_aligned">
+                    <img class = "icon_image" src="../assets/images/magnetfeld.png" alt="Magnetfield icon">
+                </div>
+                <div class="sensortext_aligned">
+                    <p>Magnetfield</p>
+                    <p>
+                        <span>X: </span><span id="magnetfield_x_value">100</span><span>T</span>
+                    </p>
+                    <p>
+                        <span>Y: </span><span id="magnetfield_y_value">150</span><span>T</span>
+                    </p>
+                    <p>
+                        <span>Z: </span><span id="magnetfield_z_value">22</span><span>T</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    
+      <div class="plot-container">
+        <h3>Plot</h3>
+        <div class="edits">
+          <button>Parameter</button>
+        </div>
+        <div class="chart-placeholder">[Chart hier]</div>
+        <div class="edits">
+            <button>Start</button>
+            <button>Stop</button>
+            <button>Reset</button>
+          </div>
+      </div>
+
+      <div class = "icon-container">
+        <div class="icon-image">
+            <div class="sensortext_aligned">
+                <img class = "icon_image" src="../assets/images/coordinate_system.png" alt="Acceleration icon">
+            </div>
+            <div class="sensortext_aligned">
+                <p>Acceleration</p>
+                <p>
+                    <span>X: </span><span id="acceleration_x_value">100</span><span>T</span>
+                </p>
+                <p>
+                    <span>Y: </span><span id="acceleration_y_value">150</span><span>T</span>
+                </p>
+                <p>
+                    <span>Z: </span><span id="acceleration_z_value">22</span><span>T</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    </div>
+  </main>
+</body>
+</html>

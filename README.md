@@ -12,7 +12,7 @@ Unsere Applikation ist ein Webinterface für das Sensor/Aktor-Netzwerk *WECANT* 
 
 ## Inbetriebnahme
 ### Module installieren
-Falls noch nicht vorhanden muss flask und flask-socketio installiert werden.
+Falls noch nicht vorhanden muss flask und flask-socketio installiert werden. Die folgende Zeile bezieht sich auf Systeme, welche pip verwenden. 
 ```bash
 pip install flask flask-socketio
 ```

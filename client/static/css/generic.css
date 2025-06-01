@@ -1,0 +1,81 @@
+:root{
+    --green-basecolor: rgb(149, 207, 195);
+    --sidebar-backgroundcolor: rgba(226, 232, 235, 0.876);
+    --sidebar-textcolor: rgb(117, 127, 130);
+    --dashboard-containercolor: rgb(183, 199, 204);
+}
+
+.content {
+    margin-left: 270px;
+    padding-left: 0.25rem;
+    flex: 1;
+}
+
+.dashboard-generic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 1rem;
+  margin-top: 2rem;
+  margin-left: 2rem;
+  margin-right: 1.25rem;
+}
+
+.dashboard-generic-grid .p{
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.generic-generate-container {
+    display: flex;
+    margin-top: 0.5rem;
+    margin-left: 0.25rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 1rem;
+    background-color: var(--dashboard-containercolor);
+    border-radius: 8px;
+}
+
+.generic-container {
+    display: flex;
+    margin-top: 0.2rem;
+    margin-left: 0.1rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.generic-var-name-container{
+    font-weight: bold;
+    align-content: normal;
+}
+
+.generic-write-input-container{
+    display: flex;
+    flex-direction: row;
+    margin-top: 0.25rem;
+    padding: 1rem;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.generic-write-input-container input {
+  background-color: var(--green-basecolor);
+  border-color: #eee;
+  border-style: solid;
+  margin: 0.2rem;
+  border-radius: 12px;
+  padding-top: 0.5rem;
+  font-size: 1.2rem;
+  align-items: center;
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,23 @@
+.sidebar {
+    width: 250px;
+    background: var(--sidebar-backgroundcolor);
+    color: rgb(151, 165, 168);
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-y: auto;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar h2 {
+    text-align: center;
+}
+
+.sensor_buttons{
+    display: flex;
+    flex-direction: column;
+}

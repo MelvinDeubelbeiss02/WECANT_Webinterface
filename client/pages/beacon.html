@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sensor Dashboard</title>
+  <link rel="stylesheet" href="../css/beacon.css" />
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="../js/script.js"></script>
+  <script src="../js/beacon.js"></script>
+  <script src='https://cdn.jsdelivr.net/npm/@jaames/iro/dist/iro.min.js'></script>
+</head>
+<body>
+  <nav class="sidebar">
+    <h2>Sensoren</h2>
+    <ul id="sensor-list">
+      <!-- Sensoren werden hier dynamisch eingefügt -->
+    </ul>
+  </nav>
+  
+  <main class="content">
+    <div class ="header-container">
+        <div class = "header-paragraph">
+            <p> Beacon</p>
+        </div>    
+    </div>
+   
+    <div class="dashboard-grid">
+        <div class = "brightness-container">
+            <div class = "beacon-paragraph">
+                <p> Mode</p>
+            </div>
+
+            <div class="mode-buttons">
+                <button id = "single_color">single color</button>
+                <button id = "blinking_color">blinking</button>
+                <button id = "horizontal_cycling">horizontal cycling</button>
+                <button id = "vertical_cycling">vertical cycling</button>
+            </div>
+            <div class="edit-frequency">
+                <p> Frequency (Hz):     </p>
+                <input id="frequency_value" type="text" name="frequency"><br>
+            </div>
+
+        </div>
+
+        <div class = "brightness-container">
+            <div class = "beacon-paragraph">
+                <p>
+                    <span>Color  </span><span id="color_num_value">1</span>
+                </p>
+            </div>
+            <div class = colorPicker-container>
+                <div class="colorPicker"></div>
+                <div class="color-buttons">
+                    <button class = "colorselector-btn" id = "color1_btn"> Color 1</button>
+                    <button class = "colorselector-btn" id = "color2_btn"> Color 2</button>
+                </div>
+            </div>
+        </div>
+        <div class = "brightness-container">
+            <div class = "beacon-paragraph">
+                <p>Brightness</p>
+            </div>
+
+            <div class="change-brightness-container">
+                <button class="add-btn" id = "plus_brightness_btn">+</button>
+                <div class="brightness-wrapper">
+                    <svg class="progress-ring" width="200" height="200">
+                      <circle class="ring-bg" cx="100" cy="100" r="90"/>
+                      <circle class="ring" cx="100" cy="100" r="90"/>
+                    </svg>
+                    <div class="center-circle">
+                        <button class = "onoff-btn"  id = "onoff_brightness_btn">&#x23FB;</button>
+                    </div>
+                  </div>
+                <button class="add-btn" id = "minus_brightness_btn">-</button>
+            </div>
+        </div>
+
+        <div class = "brightness-container">
+            <div class = "beacon-paragraph">
+                <p> Preview</p>
+            </div>
+
+            <div class="beacon-preview">
+                <svg id="beacon" xmlns="http://www.w3.org/2000/svg" width="400" height="200">
+                    <!-- Obere schwarze Leiste -->
+                    <rect fill="black" width="100%" height="20" x="0" y="0" />
+                    
+                    <!-- Untere schwarze Leiste -->
+                    <rect fill="black" width="100%" height="20" x="0" y="180" />
+                    
+                      <!-- Zeile 1 -->
+                      <rect id="cell_0_0" x="0" y="20" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_0_1" x="57.14" y="20" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_0_2" x="114.29" y="20" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_0_3" x="171.43" y="20" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_0_4" x="228.57" y="20" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_0_5" x="285.71" y="20" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_0_6" x="342.86" y="20" width="57.14" height="32" fill="#95cfc3" />
+                      
+                      <!-- Zeile 2 -->
+                      <rect id="cell_1_0" x="0" y="52" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_1_1" x="57.14" y="52" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_1_2" x="114.29" y="52" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_1_3" x="171.43" y="52" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_1_4" x="228.57" y="52" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_1_5" x="285.71" y="52" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_1_6" x="342.86" y="52" width="57.14" height="32" fill="#95cfc3" />
+                      
+                      <!-- Zeile 3 -->
+                      <rect id="cell_2_0" x="0" y="84" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_2_1" x="57.14" y="84" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_2_2" x="114.29" y="84" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_2_3" x="171.43" y="84" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_2_4" x="228.57" y="84" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_2_5" x="285.71" y="84" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_2_6" x="342.86" y="84" width="57.14" height="32" fill="#95cfc3" />
+                      
+                      <!-- Zeile 4 -->
+                      <rect id="cell_3_0" x="0" y="116" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_3_1" x="57.14" y="116" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_3_2" x="114.29" y="116" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_3_3" x="171.43" y="116" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_3_4" x="228.57" y="116" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_3_5" x="285.71" y="116" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_3_6" x="342.86" y="116" width="57.14" height="32" fill="#95cfc3" />
+                      
+                      <!-- Zeile 5 -->
+                      <rect id="cell_4_0" x="0" y="148" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_4_1" x="57.14" y="148" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_4_2" x="114.29" y="148" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_4_3" x="171.43" y="148" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_4_4" x="228.57" y="148" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_4_5" x="285.71" y="148" width="57.14" height="32" fill="#95cfc3" />
+                      <rect id="cell_4_6" x="342.86" y="148" width="57.14" height="32" fill="#95cfc3" />
+                </svg>   
+            </div>
+        </div>
+    </div>
+  </main>
+</body>
+</html>

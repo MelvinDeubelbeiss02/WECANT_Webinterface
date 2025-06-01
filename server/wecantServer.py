@@ -20,9 +20,9 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 # Initialize Flask
-app = Flask(__name__)
+app = Flask(__name__, static_folder = os.path.join(os.path.pardir, "client", "static"), template_folder = os.path.join(os.path.pardir, "client", "templates"))
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+socketio = SocketIO(app, cors_allowed_origins = "*", async_mode = 'threading')
 
 
 def new_board_callback(board_data):
@@ -70,34 +70,28 @@ def index():
         The rendered index page.
 
     """
+    print("Render Default Page")
     return render_template('index.html')
 
-
-@app.route("/board/<int:board_id>")
-def board_page(board_id):
+@app.route("/board/<string:board_name>")
+def show_board(board_name):
     """
-    Render a specific board's template based on the board ID and query parameter
-
-    Parameters
-    ----------
-    board_id : int
-        Desired board ID.
+    Render the board specific page.
 
     Returns
     -------
     Text
-        The rendered board page in case of template found.
-    str, int
-        Error message and code in case of template not found.
+        The rendered board specific page.
 
     """
-    template = request.args.get("template")
-
-    if template and template.endswith(".html") and "/" not in template:
-        return render_template(template, board_id=board_id)
-
-    return "Ungültiges oder fehlendes Template", 400
-
+    if board_name.startswith("Beacon"):
+        return render_template("beacon.html")
+    elif board_name.startswith("LC"):
+        return render_template("load_cell.html")
+    elif board_name.startswith("pH-Board"):
+        return render_template("ph_sensorboard.html")
+    else:
+        return render_template("generic.html")
 
 @socketio.on('message')
 def handle_message(msg):
@@ -131,6 +125,10 @@ def handle_connect():
 
     for board in list_of_board_configs:
         socketio.emit('NewBoard', board, to=request.sid)
+        
+    list_of_plot_data = wecant.get_plot_data()
+    for plot_data in list_of_plot_data:
+        socketio.emit('PlotData', plot_data, to=request.sid)
 
 
 def run_server():
@@ -143,7 +141,7 @@ def run_server():
 
     """
     socketio.run(app, debug=False, use_reloader=False,
-                 allow_unsafe_werkzeug=True)
+                 allow_unsafe_werkzeug=True, port=5000, host='0.0.0.0')
 
 
 # Start webserver thread
@@ -151,6 +149,6 @@ server_thread = threading.Thread(target=run_server)
 server_thread.start()
 
 # Start WECANT thread
-wecant_thread = threading.Thread(target=wecant.wecantReceiveThread, args=(
+wecant_thread = threading.Thread(target=wecant.wecant_receive_thread, args=(
     new_board_callback, new_variable_callback))
 wecant_thread.start()

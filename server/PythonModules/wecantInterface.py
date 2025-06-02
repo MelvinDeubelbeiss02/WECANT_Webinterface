@@ -3,6 +3,11 @@ import copy
 import socket
 import time
 import json
+import threading
+
+# Threadsafety
+holy_dict_lock = threading.RLock()
+plot_dict_lock = threading.RLock()
 
 # Dictionary for all board and variable information
 holy_dict = {}
@@ -216,121 +221,122 @@ def decode_all(data_buffer, new_board_callback):
         Data payload, depending on message type.
 
     """
-    original_data_buffer = copy.copy(data_buffer)
+    with holy_dict_lock:
+        original_data_buffer = copy.copy(data_buffer)
 
-    data_buffer, [global_id, specifier] = decode_id_specifier(data_buffer)
+        data_buffer, [global_id, specifier] = decode_id_specifier(data_buffer)
 
-    specifier_dict = {"globalID": global_id,
-                      "MessageType": "", "TargetRegisterType": ""}
+        specifier_dict = {"globalID": global_id,
+                          "MessageType": "", "TargetRegisterType": ""}
 
-    message_type_index = ((specifier & 0x18) >> 3)
+        message_type_index = ((specifier & 0x18) >> 3)
 
-    message_type_list = ["variableUpdate",
-                         "boardConfiguration", "variableAdding", "numOfVariables"]
-    specifier_dict["MessageType"] = message_type_list[message_type_index]
+        message_type_list = ["variableUpdate",
+                             "boardConfiguration", "variableAdding", "numOfVariables"]
+        specifier_dict["MessageType"] = message_type_list[message_type_index]
 
-    target_register_type_index = (specifier & 0x07)
-    target_register_type_list = [
-        "Value", "MinValue", "MaxValue", "StartupValue", "SafetyValue", "CyclicUpdateTime"]
-    specifier_dict["TargetRegisterType"] = target_register_type_list[target_register_type_index]
+        target_register_type_index = (specifier & 0x07)
+        target_register_type_list = [
+            "Value", "MinValue", "MaxValue", "StartupValue", "SafetyValue", "CyclicUpdateTime"]
+        specifier_dict["TargetRegisterType"] = target_register_type_list[target_register_type_index]
 
-    if specifier_dict["MessageType"] == "variableUpdate":
-        if len(data_buffer) < 5:
-            return original_data_buffer, "NotEnoughBytes", "NotEnoughBytes"
+        if specifier_dict["MessageType"] == "variableUpdate":
+            if len(data_buffer) < 5:
+                return original_data_buffer, "NotEnoughBytes", "NotEnoughBytes"
 
-        data_buffer, [variableIndex,
-                      value] = decode_variable_update(data_buffer)
+            data_buffer, [variableIndex,
+                          value] = decode_variable_update(data_buffer)
 
-        if (len(holy_dict[str(specifier_dict["globalID"])]["VariableDefs"]) != holy_dict[str(specifier_dict["globalID"])]["NumOfVariables"]):
-            return data_buffer, "VarUpdateEarly", "VarUpdateEarly"
+            if (len(holy_dict[str(specifier_dict["globalID"])]["VariableDefs"]) != holy_dict[str(specifier_dict["globalID"])]["NumOfVariables"]):
+                return data_buffer, "VarUpdateEarly", "VarUpdateEarly"
 
-        datatype = holy_dict[str(specifier_dict["globalID"])
-                             ]["VariableDefs"][variableIndex]["Datatype"]
-        if datatype == "eInt32":
-            value = struct.unpack('!i', struct.pack('!I', value))[0]
-        elif datatype == "eUint32":
-            value = value
-        elif datatype == "eFloat":
-            value = struct.unpack('!f', struct.pack('!I', value))[0]
+            datatype = holy_dict[str(specifier_dict["globalID"])
+                                 ]["VariableDefs"][variableIndex]["Datatype"]
+            if datatype == "eInt32":
+                value = struct.unpack('!i', struct.pack('!I', value))[0]
+            elif datatype == "eUint32":
+                value = value
+            elif datatype == "eFloat":
+                value = struct.unpack('!f', struct.pack('!I', value))[0]
 
-        holy_dict[str(specifier_dict["globalID"])
-                  ]["VariableDefs"][variableIndex]["Value"] = value
+            holy_dict[str(specifier_dict["globalID"])
+                      ]["VariableDefs"][variableIndex]["Value"] = value
 
-        return_data_dict = {"variableIndex": variableIndex, "Value": value}
+            return_data_dict = {"variableIndex": variableIndex, "Value": value}
 
-    elif specifier_dict["MessageType"] == "numOfVariables":
-        if len(data_buffer) < 1:
-            return original_data_buffer, "NotEnoughBytes", "NotEnoughBytes"
+        elif specifier_dict["MessageType"] == "numOfVariables":
+            if len(data_buffer) < 1:
+                return original_data_buffer, "NotEnoughBytes", "NotEnoughBytes"
 
-        data_buffer, [num_of_variables] = decode_num_of_variables(data_buffer)
-        holy_dict[str(specifier_dict["globalID"])
-                  ]["NumOfVariables"] = num_of_variables
+            data_buffer, [num_of_variables] = decode_num_of_variables(data_buffer)
+            holy_dict[str(specifier_dict["globalID"])
+                      ]["NumOfVariables"] = num_of_variables
 
-        return_data_dict = {"NumOfVariables": num_of_variables}
+            return_data_dict = {"NumOfVariables": num_of_variables}
 
-    elif specifier_dict["MessageType"] == "boardConfiguration":
-        if len(data_buffer) < 64:
-            return original_data_buffer, "NotEnoughBytes", "NotEnoughBytes"
-        data_buffer, [sw_version, hw_version, name,
-                      description] = decode_board_configuration(data_buffer)
-        name = name.decode('utf-8').rstrip('\x00')
-        hw_version = hw_version.decode('utf-8').rstrip('\x00')
-        sw_version = sw_version.decode('utf-8').rstrip('\x00')
-        description = description.decode('utf-8').rstrip('\x00')
-        return_data_dict = {"hwVersion": hw_version,
-                            "swVersion": sw_version, "Description": description, "Name": name}
+        elif specifier_dict["MessageType"] == "boardConfiguration":
+            if len(data_buffer) < 64:
+                return original_data_buffer, "NotEnoughBytes", "NotEnoughBytes"
+            data_buffer, [sw_version, hw_version, name,
+                          description] = decode_board_configuration(data_buffer)
+            name = name.decode('utf-8').rstrip('\x00')
+            hw_version = hw_version.decode('utf-8').rstrip('\x00')
+            sw_version = sw_version.decode('utf-8').rstrip('\x00')
+            description = description.decode('utf-8').rstrip('\x00')
+            return_data_dict = {"hwVersion": hw_version,
+                                "swVersion": sw_version, "Description": description, "Name": name}
 
-        indexString = str(specifier_dict["globalID"])
-        holy_dict.update({indexString: {
-                         "BoardConfig": return_data_dict, "VariableDefs": [], "NumOfVariables": -1}})
+            indexString = str(specifier_dict["globalID"])
+            holy_dict.update({indexString: {
+                             "BoardConfig": return_data_dict, "VariableDefs": [], "NumOfVariables": -1}})
 
-    elif specifier_dict["MessageType"] == "variableAdding":
-        if len(data_buffer) < 128:
-            return original_data_buffer, "NotEnoughBytes", "NotEnoughBytes"
-        data_buffer, [value, minValue, maxValue, startupValue, safetyValue, cyclicUpdateTime, datatype,
-                      permission, register_index, unit, name, description] = decode_variable_adding(data_buffer)
-        name = name.decode('utf-8').rstrip('\x00')
-        unit = unit.decode('utf-8').rstrip('\x00')
-        description = description.decode('utf-8').rstrip('\x00')
+        elif specifier_dict["MessageType"] == "variableAdding":
+            if len(data_buffer) < 128:
+                return original_data_buffer, "NotEnoughBytes", "NotEnoughBytes"
+            data_buffer, [value, minValue, maxValue, startupValue, safetyValue, cyclicUpdateTime, datatype,
+                          permission, register_index, unit, name, description] = decode_variable_adding(data_buffer)
+            name = name.decode('utf-8').rstrip('\x00')
+            unit = unit.decode('utf-8').rstrip('\x00')
+            description = description.decode('utf-8').rstrip('\x00')
 
-        if datatype == 0:
-            value = struct.unpack('!i', struct.pack('!I', value))[0]
-        elif datatype == 1:
-            value = value
-        elif datatype == 2:
-            value = struct.unpack('!f', struct.pack('!I', value))[0]
+            if datatype == 0:
+                value = struct.unpack('!i', struct.pack('!I', value))[0]
+            elif datatype == 1:
+                value = value
+            elif datatype == 2:
+                value = struct.unpack('!f', struct.pack('!I', value))[0]
 
-        return_data_dict = {"Value": startupValue, "MinValue": minValue, "MaxValue": maxValue, "StartupValue": startupValue, "SafetyValue": safetyValue,
-                            "CyclicUpdateTime": cyclicUpdateTime, "Datatype": "", "Permission": "", "register_index": register_index, "Unit": unit, "Name": name, "Description": description}
-        if datatype == 0:
-            return_data_dict["Datatype"] = "eInt32"
-        elif datatype == 1:
-            return_data_dict["Datatype"] = "eUint32"
-        elif datatype == 2:
-            return_data_dict["Datatype"] = "eFloat"
-        if permission == 0:
-            return_data_dict["Permission"] = "eRead"
-        elif permission == 1:
-            return_data_dict["Permission"] = "eReadWrite"
+            return_data_dict = {"Value": startupValue, "MinValue": minValue, "MaxValue": maxValue, "StartupValue": startupValue, "SafetyValue": safetyValue,
+                                "CyclicUpdateTime": cyclicUpdateTime, "Datatype": "", "Permission": "", "register_index": register_index, "Unit": unit, "Name": name, "Description": description}
+            if datatype == 0:
+                return_data_dict["Datatype"] = "eInt32"
+            elif datatype == 1:
+                return_data_dict["Datatype"] = "eUint32"
+            elif datatype == 2:
+                return_data_dict["Datatype"] = "eFloat"
+            if permission == 0:
+                return_data_dict["Permission"] = "eRead"
+            elif permission == 1:
+                return_data_dict["Permission"] = "eReadWrite"
 
-        holy_dict[str(specifier_dict["globalID"])
-                  ]["VariableDefs"].append(return_data_dict)
+            holy_dict[str(specifier_dict["globalID"])
+                      ]["VariableDefs"].append(return_data_dict)
 
-        if (len(holy_dict[str(specifier_dict["globalID"])]["VariableDefs"]) == holy_dict[str(specifier_dict["globalID"])]["NumOfVariables"]):
-            brd = holy_dict[str(specifier_dict["globalID"])]
-            new_board_dict = {
-                "Name": brd["BoardConfig"]["Name"], "Variables": []}
-            plot_dict.update({str(specifier_dict["globalID"]): {"Name": brd["BoardConfig"]["Name"], "Variables": []}})
-            for var in brd["VariableDefs"]:
-                new_board_dict["Variables"].append(
-                    {"Name": var["Name"], "Unit": var["Unit"], "Value": var["Value"], "Permission": var["Permission"]})
-                plot_dict[str(specifier_dict["globalID"])]["Variables"].append({"Name": var["Name"], "Active": False, "ValueList": []})
-            
-            new_board_callback(new_board_dict)
-            
+            if (len(holy_dict[str(specifier_dict["globalID"])]["VariableDefs"]) == holy_dict[str(specifier_dict["globalID"])]["NumOfVariables"]):
+                brd = holy_dict[str(specifier_dict["globalID"])]
+                new_board_dict = {
+                    "Name": brd["BoardConfig"]["Name"], "Variables": []}
+                plot_dict.update({str(specifier_dict["globalID"]): {"Name": brd["BoardConfig"]["Name"], "Variables": []}})
+                for var in brd["VariableDefs"]:
+                    new_board_dict["Variables"].append(
+                        {"Name": var["Name"], "Unit": var["Unit"], "Value": var["Value"], "Permission": var["Permission"]})
+                    plot_dict[str(specifier_dict["globalID"])]["Variables"].append({"Name": var["Name"], "Active": False, "ValueList": []})
+                
+                new_board_callback(new_board_dict)
+                
 
 
-    return data_buffer, specifier_dict, return_data_dict
+        return data_buffer, specifier_dict, return_data_dict
 
 
 def get_all_board_configs():
@@ -343,17 +349,18 @@ def get_all_board_configs():
         List of dictionaries of board information.
 
     """
-    list_of_dicts = []
-    for global_id in holy_dict:
-        board = holy_dict[global_id]
-        if (len(board["VariableDefs"]) == board["NumOfVariables"]):
-            new_board_dict = {
-                "Name": board["BoardConfig"]["Name"], "Variables": []}
-            for variable in board["VariableDefs"]:
-                new_board_dict["Variables"].append(
-                    {"Name": variable["Name"], "Unit": variable["Unit"], "Value": variable["Value"], "Permission": variable["Permission"]})
-            list_of_dicts.append(new_board_dict)
-    return list_of_dicts
+    with holy_dict_lock:
+        list_of_dicts = []
+        for global_id in holy_dict:
+            board = holy_dict[global_id]
+            if (len(board["VariableDefs"]) == board["NumOfVariables"]):
+                new_board_dict = {
+                    "Name": board["BoardConfig"]["Name"], "Variables": []}
+                for variable in board["VariableDefs"]:
+                    new_board_dict["Variables"].append(
+                        {"Name": variable["Name"], "Unit": variable["Unit"], "Value": variable["Value"], "Permission": variable["Permission"]})
+                list_of_dicts.append(new_board_dict)
+        return list_of_dicts
 
 
 def connect_icant(server_ip, server_port):
@@ -390,30 +397,32 @@ def handle_received_data(msg):
     None.
 
     """
-    if isinstance(msg, str):
-        data = json.loads(msg)
-    else:
-        data = msg
-    global_id = get_global_id(data["Boardname"])
-    
-    if global_id == None:
-        return
-    
-    register_index = get_variable_index(global_id, data["Variablename"])
-    
-    if "Plotstate" in data:
-        if data["Plotstate"] == "Start":
-            plot_dict[str(global_id)]["Variables"][register_index]["Active"] = True
-        elif data["Plotstate"] == "Stop":
-            plot_dict[str(global_id)]["Variables"][register_index]["Active"] = False
-        elif data["Plotstate"] == "Reset":
-            plot_dict[str(global_id)]["Variables"][register_index]["ValueList"] = []
-    else:
-        specifier = 0
-        value = data["Value"]
-        holy_dict[str(global_id)]["VariableDefs"][register_index]["Value"] = value
-        txData = encode_valriable(global_id, specifier, register_index, value)
-        client.sendall(txData)
+    with holy_dict_lock:
+        if isinstance(msg, str):
+            data = json.loads(msg)
+        else:
+            data = msg
+        global_id = get_global_id(data["Boardname"])
+        
+        if global_id == None:
+            return
+        
+        register_index = get_variable_index(global_id, data["Variablename"])
+        
+        if "Plotstate" in data:
+            with plot_dict_lock:
+                if data["Plotstate"] == "Start":
+                    plot_dict[str(global_id)]["Variables"][register_index]["Active"] = True
+                elif data["Plotstate"] == "Stop":
+                    plot_dict[str(global_id)]["Variables"][register_index]["Active"] = False
+                elif data["Plotstate"] == "Reset":
+                    plot_dict[str(global_id)]["Variables"][register_index]["ValueList"] = []
+        else:
+            specifier = 0
+            value = data["Value"]
+            holy_dict[str(global_id)]["VariableDefs"][register_index]["Value"] = value
+            txData = encode_valriable(global_id, specifier, register_index, value)
+            client.sendall(txData)
         
 def get_plot_data():
     """
@@ -425,13 +434,14 @@ def get_plot_data():
         List of dictionaries of plot data.
 
     """
-    list_of_plot_data = []
-    for board in plot_dict:
-        for variable in plot_dict[board]["Variables"]:
-            if len(variable["ValueList"]) > 0:
-                list_of_plot_data.append({"Boardname": plot_dict[board]["Name"], "Variablename": variable["Name"], "Valuelist": variable["ValueList"], "PlotState": variable["Active"]})
-    
-    return list_of_plot_data
+    with plot_dict_lock:
+        list_of_plot_data = []
+        for board in plot_dict:
+            for variable in plot_dict[board]["Variables"]:
+                if len(variable["ValueList"]) > 0:
+                    list_of_plot_data.append({"Boardname": plot_dict[board]["Name"], "Variablename": variable["Name"], "Valuelist": variable["ValueList"], "PlotState": variable["Active"]})
+        
+        return list_of_plot_data
 
 def wecant_receive_thread(new_board_callback, new_value_callback):
     """
@@ -461,19 +471,21 @@ def wecant_receive_thread(new_board_callback, new_value_callback):
                 break
             else:
                 if specifier["MessageType"] == "variableUpdate":
-                    board = holy_dict[str(specifier["globalID"])]
-                    board_name = board["BoardConfig"]["Name"]
-                    variable_name = board["VariableDefs"][decoded_data["variableIndex"]]["Name"]
-                    value = decoded_data["Value"]
+                    with holy_dict_lock:
+                        board = holy_dict[str(specifier["globalID"])]
+                        board_name = board["BoardConfig"]["Name"]
+                        variable_name = board["VariableDefs"][decoded_data["variableIndex"]]["Name"]
+                        value = decoded_data["Value"]
 
-                    board["VariableDefs"][decoded_data["variableIndex"]
-                                          ]["Value"] = value
+                        board["VariableDefs"][decoded_data["variableIndex"]
+                                              ]["Value"] = value
 
-                    data = {"Boardname": board_name,
-                            "Variablename": variable_name, "Value": value}
-                    
-                    if plot_dict[str(specifier["globalID"])]["Variables"][decoded_data["variableIndex"]]["Active"] == True:
-                        plot_dict[str(specifier["globalID"])]["Variables"][decoded_data["variableIndex"]]["ValueList"].append(value)
-                                                                          
+                        data = {"Boardname": board_name,
+                                "Variablename": variable_name, "Value": value}
+                        
+                        with plot_dict_lock:
+                            if plot_dict[str(specifier["globalID"])]["Variables"][decoded_data["variableIndex"]]["Active"] == True:
+                                plot_dict[str(specifier["globalID"])]["Variables"][decoded_data["variableIndex"]]["ValueList"].append(value)
+                                                                              
                     
                     new_value_callback(data)

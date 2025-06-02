@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // updates the navigation board list
-updateBoardList = () => {
+const updateBoardList = () => {
     const boardList = document.getElementById("board_list");
     const existingIds = new Set(
         Array.from(boardList.querySelectorAll("li")).map(li => li.dataset.id)
@@ -203,7 +203,7 @@ const addNewBoard = (data) =>  {
 }
 
 // generates a generic readwrite container with textinput for the generic template
-function addReadWriteContainer(boardName, varName, value, unit) {
+const addReadWriteContainer = (boardName, varName, value, unit) => {
     const container = document.createElement("div");
     container.className = "generic-generate-container";
     if (unit == " "){
@@ -234,7 +234,7 @@ function addReadWriteContainer(boardName, varName, value, unit) {
 }
 
 // generates a generic read container for the generic template
-function addReadContainer(boardName, varName, value, unit) {
+const addReadContainer = (boardName, varName, value, unit) => {
     const container = document.createElement("div");
     container.className = "generic-generate-container";
     container.innerHTML = `

@@ -7,7 +7,20 @@ Unsere Applikation ist ein Webinterface für das Sensor/Aktor-Netzwerk *WECANT* 
 ## Funktionsweise der Applikation
 Die Applikation besteht serverseitig aus einem Flask-Backend. Dieses verarbeitet HTTP-Anfragen und nutzt WebSocket-Verbindungen, um Sensordaten, die vom ICANT per TCP kommen, an den Client zu senden oder Benutzereingaben zu empfangen. Benutzereingaben, die vom Client stammen und für bestimmte Boards bestimmt sind, leitet der Server per TCP an das ICANT-Modul weiter. Das ICANT wiederum überträgt diese Daten über den CAN-Bus an die jeweiligen Boards. Dieser Aufbau ist in Abbildung 1 dargestellt.
 
-![Abb. 1, Aufbau](images/netzwerkaufbau.png)
+![Abb. 1, Netzwerkaufbau](images/netzwerkaufbau.png)
+
+**Abb. 1:** Netzwerkaufbau
+
+Die Kommunikation zwischen Server und Browser ist in Abbildung 2 dargestellt.
+Beim Aufrufen der Webseite sendet der Server die Datei index.html an den Browser. Gleichzeitig baut der Client eine WebSocket-Verbindung zum Server auf.
+Nach erfolgreicher Verbindung übermittelt der Server die Konfiguration aller aktuell angeschlossenen Sensor- oder Aktorboards. Diese Konfigurationsdaten werden im Client verarbeitet und entsprechend visualisiert.
+Ist für eine Variable eines Boards die Plot-Funktion aktiviert, sendet der Server ein Array mit bisherigen Sensordaten an den Client. Falls das entsprechende Board gerade angezeigt wird, werden diese Daten im Diagramm dargestellt.
+Nach Abschluss dieser Initialisierungsphase beginnt die eigentliche Laufzeitkommunikation: Server und Client tauschen über die WebSocket-Verbindung bidirektional Daten aus.
+Der Wechsel zwischen den Boards erfolgt über Navigationstabs im Client. Beim Umschalten sendet der Browser einen HTTP-Request mit dem gewünschten Boardnamen an den Server. Anhand des Anfangs des Boardnamens entscheidet der Server, welches HTML-Template (z. B. für Beacon-, LC- oder pH-Boards) geladen und zurückgesendet wird.
+
+![Abb. 2, Kommunikation](images/kommunikation.jpg)
+
+**Abb. 2:** Kommunikation
 
 ## Serverseitige API Endpoints
 | Typ       | Endpoint / Event       | Beschreibung |
@@ -23,6 +36,8 @@ Die Applikation besteht serverseitig aus einem Flask-Backend. Dieses verarbeitet
 Der Server besteht aus zwei Python-Scripts. Das File [wecantServer.py](https://github.com/MelvinDeubelbeiss02/WECANT_Webinterface/blob/main/server/wecantServer.py) startet den die Verbindung zum ICANT und den Flask-Webserver. Zudem werden die HTTP und WebSocket Endpoints definiert und die nötigen Threads gestartet. Das File [wecantInterface.py](https://github.com/MelvinDeubelbeiss02/WECANT_Webinterface/blob/main/server/PythonModules/wecantInterface.py) beinhaltet alle Logik und Funktionen für die Kommunikation mit dem ICANT. Für genauere Informationen über den Server-Code können die Docstrings der Funktionen angeschaut werden.
 
 ### Client
+Der Client setzt sich aus mehreren HTML-Vorlagen für die verschiedenen Sensorboards, passenden [CSS-Stylesheets](https://github.com/MelvinDeubelbeiss02/WECANT_Webinterface/tree/main/client/static/css) und [JavaScript-Code](client/static/js) zur Kommunikation und Darstellung der Sensordaten zusammen.
+In der Datei [main.js](https://github.com/MelvinDeubelbeiss02/WECANT_Webinterface/blob/main/client/static/js/main.js) wird die Kommunikation mit dem Server gehandelt, sowie bereits allgemeine Änderungen im DOM, wie beispielsweise das Einsetzen von einem neuen Sensorwert in einem Textfeld oder der Aufbau des generischen Layouts durchgeführt. Spezifischere Anpassungen im DOM, wie die Visualisierung der Helligkeit beim Beacon werden in den zum HTML-Template gehörigen JavaScript Dateien umgesetzt. Diese enthalten auch die Initialisierung von Event Listenern, welche für die Interaktion mit board-spezifischen Elementen notwendig sind. 
 
 ## Inbetriebnahme
 ### Module installieren mit pip

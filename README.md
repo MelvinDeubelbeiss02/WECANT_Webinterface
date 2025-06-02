@@ -5,7 +5,9 @@ Webinterface for WECANT System of FHNW Rover
 Unsere Applikation ist ein Webinterface für das Sensor/Aktor-Netzwerk *WECANT* (Wired Ethernet Can Adaptive Network Topology) des FHNW Rovers. Der Server, programmiert in Python, kommuniziert mti dem *ICANT* (Interface Controller for Adaptive Network Topology) über ein TCP-Stream und beinhaltet ein Webserver mit Flask. Die Client-Server Verbindung besteht aus einem WebSocket, wobei der Client die verschiedenen Boards, verbunden am ICANT, in der Weboberfläche darstellt und bidirektional kommunizieren kann.
 
 ## Funktionsweise der Applikation
-Die Applikation besteht serverseitig aus einem Flask-Backend. Dieses verarbeitet HTTP-Anfragen und nutzt WebSocket-Verbindungen, um Sensordaten, die vom ICANT per TCP kommen, an den Client zu senden oder Benutzereingaben zu empfangen. Benutzereingaben, die vom Client stammen und für bestimmte Boards bestimmt sind, leitet der Server per TCP an das ICANT-Modul weiter. Das ICANT wiederum überträgt diese Daten über den CAN-Bus an die jeweiligen Boards. Dieser Aufbau ist in Abbildung xx dargestellt.
+Die Applikation besteht serverseitig aus einem Flask-Backend. Dieses verarbeitet HTTP-Anfragen und nutzt WebSocket-Verbindungen, um Sensordaten, die vom ICANT per TCP kommen, an den Client zu senden oder Benutzereingaben zu empfangen. Benutzereingaben, die vom Client stammen und für bestimmte Boards bestimmt sind, leitet der Server per TCP an das ICANT-Modul weiter. Das ICANT wiederum überträgt diese Daten über den CAN-Bus an die jeweiligen Boards. Dieser Aufbau ist in Abbildung 1 dargestellt.
+
+![Abb. 1, Aufbau](images/netzwerkaufbau.png)
 
 ## Serverseitige API Endpoints
 | Typ       | Endpoint / Event       | Beschreibung |

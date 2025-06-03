@@ -49,7 +49,7 @@ Der Wechsel zwischen den Boards erfolgt über Navigationstabs im Client. Beim Um
 
 **Abb. 5:** Kommunikation
 
-## Serverseitige API Endpoints
+## Serverseitige API Endpoints / Events
 | Typ       | Endpoint / Event       | Beschreibung |
 |-----------|------------------------|--------------|
 | **HTTP**  | `/`                    | Liefert die Startseite `index.html`. |
